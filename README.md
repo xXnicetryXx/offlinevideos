@@ -35,6 +35,6 @@ The application is built as a static frontend suite. It utilizes **IndexedDB** f
 * **Storage:** Sufficient local disk space for the browser to store video blobs in its internal database.
 
 ## TIP
-use [y2mate](y2mate.ws) (recommended) to download YouTube videos/shorts OR [TurboscribeAI](https://turboscribe.ai/downloader/youtube/video) (Faster but limited)
+use [y2mate](https://y2mate.ws) (recommended) to download YouTube videos/shorts OR [TurboscribeAI](https://turboscribe.ai/downloader/youtube/video) (Faster but limited)
 ## License
 This project is released under the MIT License.
