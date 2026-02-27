@@ -1,41 +1,40 @@
-# OfflineVideos
+# OfflineVids
 
-A browser-based suite for localized video playback and metadata management. This project provides a decentralized approach to media handling, requiring no server-side dependencies or external installation.
-
-## Repository Contents
-
-* `player.html` — The core interface for media playback, supporting local file streaming and playback controls.
-* `editor.html` — A utility interface for managing video configurations, metadata, or file parameters.
-* `offlinevideos.zip` — A compressed archive containing the full application suite for portable use.
+OfflineVids is a localized, browser-based media management suite designed for high-performance video playback and metadata organization without the need for a backend server. The system leverages modern web technologies to provide a secure, private, and entirely offline experience.
 
 ## Technical Specifications
 
 ### Architecture
-This is a static frontend application. All logic is executed on the client side within the web browser. This ensures complete data privacy and full functionality in offline environments.
+The application is built as a static frontend suite. It utilizes **IndexedDB** for persistent local storage of video blobs, thumbnails, and metadata. This architecture ensures that media remains on the user's local machine, providing fast retrieval and complete data privacy.
 
-### System Requirements
-* **Browser:** Any modern web browser (Google Chrome, Mozilla Firefox, Apple Safari, or Microsoft Edge).
-* **Extraction Tool:** A standard utility to decompress the `.zip` distribution.
+### Core Components
+* `Player.html` — The primary interface for media consumption. It features a library view, search functionality, category filtering, and a specialized "Shorts" scroll player for vertical content.
+* `Editor.html` — The management utility used to import new media into the local "Vault." It supports automatic thumbnail generation, aspect ratio detection (Widescreen vs. Shorts), and metadata tagging.
+* `offlinevideos.zip` — A portable, compressed distribution of the full application suite.
 
-## Usage Instructions
+## Key Features
 
-### Direct Execution
-To use the application tools:
-1. Clone the repository or download the source files.
-2. Open `player.html` to begin media playback.
-3. Open `editor.html` to access configuration or editing tools.
+* **Local Vault Storage:** Save videos directly to the browser's IndexedDB for instant offline access.
+* **Smart Detection:** Automatic identification of 9:16 portrait or 1:1 square videos to categorize them as "Shorts."
+* **Advanced Playback:** Includes queue management, playback speed controls, and a dedicated vertical scroll mode.
+* **Zero Dependencies:** No Python, Node.js, or external database required. Runs natively in any modern web browser.
 
-### Portable Distribution
-1. Download `offlinevideos.zip`.
-2. Extract the folder to your local drive or a USB storage device.
-3. Launch the desired `.html` file directly from the extracted folder.
+## Getting Started
 
-## Deployment
-While designed for local use, this project can be hosted on any static web provider. To deploy via **GitHub Pages**:
-1. Navigate to the repository **Settings**.
-2. Select **Pages** from the sidebar.
-3. Under **Branch**, select `main` and click **Save**.
-4. Note: Since there is no `index.html`, you will need to append `/player.html` or `/editor.html` to your generated GitHub Pages URL to view the tools.
+### Installation
+1. Clone the repository:
+   `git clone https://github.com/xXnicetryXx/offlinevideos.git`
+2. Alternatively, download and extract `offlinevideos.zip`.
 
+### Usage
+1. **Importing Media:** Open `Editor.html` in your browser. Drag and drop a video file to begin the "Publish to Vault" process.
+2. **Viewing Content:** Open `Player.html` to browse your local library and begin playback.
+
+## Requirements
+* **Browser:** A modern web browser with IndexedDB support (Chrome, Firefox, Edge, or Safari 15.4+).
+* **Storage:** Sufficient local disk space for the browser to store video blobs in its internal database.
+
+## TIP
+use [y2mate](y2mate.ws) (recommended) to download YouTube videos/shorts OR [TurboscribeAI](https://turboscribe.ai/downloader/youtube/video) (Faster but limited)
 ## License
 This project is released under the MIT License.
