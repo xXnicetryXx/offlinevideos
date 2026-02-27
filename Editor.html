@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfflineVids — Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0c;--surface:#111116;--card:#16161d;--border:#2a2a35;--accent:#e8ff47;--red:#ff4757;--text:#e8e8f0;--muted:#6b6b80;--radius:10px;--fd:'Bebas Neue',cursive;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:.35;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E")}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:12px}
+.logo{font-family:var(--fd);font-size:24px;letter-spacing:2px;color:var(--accent);display:flex;align-items:center;gap:8px;user-select:none;text-decoration:none}
+.logo-dot{width:7px;height:7px;background:var(--red);border-radius:50%}
+.tb-btn{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--fm);letter-spacing:.6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px;text-decoration:none;white-space:nowrap}
+.tb-btn.hi{background:var(--accent);color:#0a0a0c;border-color:var(--accent)}
+.tb-btn.hi:hover{background:#f0ff60}
+#main{padding:32px 24px}
+.page-head{margin-bottom:28px}
+.page-head h2{font-family:var(--fd);font-size:38px;letter-spacing:2px}
+.page-head h2 em{color:var(--accent);font-style:normal}
+.page-head p{color:var(--muted);font-size:13px;margin-top:5px}
+.egrid{display:grid;grid-template-columns:1fr 300px;gap:22px;max-width:1060px}
+@media(max-width:760px){.egrid{grid-template-columns:1fr}}
+.fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:18px}
+.fg{display:flex;flex-direction:column;gap:7px}
+.flabel{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:5px}
+.req{color:var(--red)}
+.opt{font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0}
+.finput{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:10px 13px;color:var(--text);font-family:var(--fb);font-size:13px;outline:none;transition:border-color .2s;width:100%}
+.finput:focus{border-color:var(--accent)}
+.finput::placeholder{color:var(--muted)}
+textarea.finput{resize:vertical;min-height:90px}
+.dz{border:2px dashed var(--border);border-radius:var(--radius);padding:26px 18px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.dz:hover,.dz.ov{border-color:var(--accent);background:rgba(232,255,71,.04)}
+.dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{margin-bottom:9px;opacity:.3}
+.dz h4{font-size:13px;font-weight:600;margin-bottom:3px}
+.dz p{font-size:11px;color:var(--muted)}
+.dz.done{border-color:rgba(232,255,71,.4);background:rgba(232,255,71,.03)}
+.fname{font-family:var(--fm);font-size:11px;color:var(--accent);margin-top:7px;word-break:break-all;display:none}
+.ar-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--fm);font-size:10px;padding:4px 10px;border-radius:5px;border:1px solid var(--border);color:var(--muted);background:var(--card);margin-top:5px}
+.ar-badge.short{border-color:rgba(255,71,87,.4);color:var(--red);background:rgba(255,71,87,.08)}
+.ar-badge.square{border-color:rgba(232,255,71,.3);color:var(--accent);background:rgba(232,255,71,.06)}
+.ar-badge.wide{border-color:rgba(255,255,255,.1);color:var(--muted)}
+.prog-wrap{display:none;flex-direction:column;gap:7px}
+.prog-wrap.vis{display:flex}
+.prog-track{width:100%;height:6px;background:var(--card);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;width:0;transition:width .15s linear;background:var(--accent)}
+.prog-fill.saving{background:#7c3aed}
+.prog-lbl{font-family:var(--fm);font-size:10px;color:var(--muted)}
+.prog-sub{font-family:var(--fm);font-size:10px;color:var(--muted);opacity:.6}
+.form-acts{display:flex;gap:9px;padding-top:2px}
+.btn-pub{padding:11px 26px;background:var(--accent);color:#0a0a0c;border:none;border-radius:7px;font-family:var(--fb);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-pub:hover{background:#f0ff60;transform:translateY(-1px);box-shadow:0 6px 18px rgba(232,255,71,.25)}
+.btn-pub:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-sec{padding:11px 20px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:7px;font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-sec:hover{border-color:var(--text);background:rgba(255,255,255,.04)}
+.prev-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:14px;align-self:start}
+.prev-lbl{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase}
+.prev-thumb{width:100%;aspect-ratio:16/9;background:var(--card);border-radius:7px;overflow:hidden;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.prev-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.prev-title{font-weight:600;font-size:14px;margin-bottom:3px}
+.prev-desc{color:var(--muted);font-size:11px;line-height:1.5}
+.prev-ar{font-family:var(--fm);font-size:10px;color:var(--muted);margin-top:6px}
+.vault-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.vs-row{display:flex;justify-content:space-between;align-items:center;font-family:var(--fm);font-size:11px}
+.vs-k{color:var(--muted)}.vs-v{color:var(--accent);font-weight:600}
+.compat-warn{background:rgba(255,71,87,.06);border:1px solid rgba(255,71,87,.25);border-radius:7px;padding:10px 13px;font-size:11px;color:var(--muted);line-height:1.65;display:none}
+.compat-warn.show{display:block}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:12px;font-weight:500;z-index:3000;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:rgba(232,255,71,.4);color:var(--accent)}
+#toast.err{border-color:rgba(255,71,87,.4);color:var(--red)}
+#toast.nfo{border-color:rgba(167,139,250,.4);color:#a78bfa}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:5000;transition:opacity .4s}
+#loading.gone{opacity:0;pointer-events:none}
+#loading .ll{font-family:var(--fd);font-size:46px;letter-spacing:4px;color:var(--accent)}
+#loading .ls{font-family:var(--fm);font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="loading"><div class="ll">OFFLINEVIDS</div><div class="ls">Opening vault…</div></div>
+
+<header id="topbar">
+  <a class="logo" href="Player.html"><span class="logo-dot"></span>OFFLINEVIDS</a>
+  <a class="tb-btn hi" href="Player.html">
+    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Go to Player
+  </a>
+</header>
+
+<div id="main">
+  <div class="page-head">
+    <h2>PUBLISH <em>VIDEO</em></h2>
+    <p>Videos are stored permanently in your browser's IndexedDB — works fully offline, no server needed.</p>
+  </div>
+  <div class="egrid">
+    <div class="fcard">
+
+      <div class="fg">
+        <label class="flabel"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Video File <span class="req">*</span></label>
+        <div class="dz" id="vdrop" ondragover="dzOver(event,'vdrop')" ondragleave="dzLeave('vdrop')" ondrop="dropVid(event)">
+          <input type="file" id="vinput" accept="video/mp4,video/webm,video/*" onchange="onVidSel(this)">
+          <div class="dz-icon"><svg width="34" height="34" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+          <h4>Drop MP4 / WebM here</h4>
+          <p>or click to browse — large files fully supported</p>
+          <div class="fname" id="vname"></div>
+        </div>
+        <div id="ar-wrap" style="display:none">
+          <div class="ar-badge" id="ar-badge"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span id="ar-text"></span></div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="flabel"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Title <span class="req">*</span></label>
+        <input type="text" id="tinput" class="finput" placeholder="Give your video a name…" oninput="updatePrev()">
+      </div>
+
+      <div class="fg">
+        <label class="flabel"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Thumbnail <span class="opt">(optional — auto-captured if blank)</span></label>
+        <div class="dz" id="tdrop" ondragover="dzOver(event,'tdrop')" ondragleave="dzLeave('tdrop')" ondrop="dropThumb(event)">
+          <input type="file" id="tinput2" accept="image/*" onchange="onThumbSel(this)">
+          <div class="dz-icon"><svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          <h4>Choose thumbnail</h4><p>JPG, PNG, WebP</p>
+          <div class="fname" id="tname"></div>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="flabel"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/></svg>Description <span class="opt">(optional)</span></label>
+        <textarea id="dinput" class="finput" placeholder="Add notes or details…" oninput="updatePrev()"></textarea>
+      </div>
+
+      <div class="prog-wrap" id="prog-wrap">
+        <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+        <div class="prog-lbl" id="prog-lbl">Saving…</div>
+        <div class="prog-sub" id="prog-sub"></div>
+      </div>
+
+      <div class="compat-warn" id="compat-warn">⚠️ Your browser doesn't support direct Blob storage in IndexedDB. Videos will use ArrayBuffer fallback — large files (&gt;500 MB) may cause a brief pause during publish.</div>
+
+      <div class="form-acts">
+        <button class="btn-pub" id="pub-btn" onclick="publish()">Publish to Vault</button>
+        <button class="btn-sec" onclick="resetForm()">Clear</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="prev-panel">
+        <div class="prev-lbl">Preview</div>
+        <div class="prev-thumb" id="prev-thumb"><svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1" style="opacity:.12"><rect x="2" y="2" width="20" height="20" rx="3"/><polygon points="10,8 16,12 10,16"/></svg></div>
+        <div>
+          <div class="prev-title" id="prev-title" style="color:var(--muted)">Untitled Video</div>
+          <div class="prev-desc" id="prev-desc" style="color:var(--muted)">No description</div>
+          <div class="prev-ar" id="prev-ar"></div>
+        </div>
+      </div>
+      <div class="vault-stat">
+        <div class="vs-row"><span class="vs-k">VAULT VIDEOS</span><span class="vs-v" id="vs-cnt">—</span></div>
+        <div class="vs-row"><span class="vs-k">STORAGE USED</span><span class="vs-v" id="vs-sz">—</span></div>
+        <div class="vs-row"><span class="vs-k">SHORTS</span><span class="vs-v" id="vs-sh">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══ DB — version 2: adds separate 'thumbs' store ══
+const DB_NAME='offlinevids', DB_VER=2;
+let db=null, blobOK=true;
+const $=id=>document.getElementById(id);
+
+function openDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(DB_NAME,DB_VER);
+    r.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains('meta'))   d.createObjectStore('meta',{keyPath:'id'});
+      if(!d.objectStoreNames.contains('blobs'))  d.createObjectStore('blobs',{keyPath:'id'});
+      // NEW: thumbs store keeps big base64 out of meta (so meta reads stay fast)
+      if(!d.objectStoreNames.contains('thumbs')) d.createObjectStore('thumbs',{keyPath:'id'});
+    };
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=e=>rej(e.target.error);
+  });
+}
+
+const idbPut=(s,v)=>new Promise((res,rej)=>{const r=db.transaction(s,'readwrite').objectStore(s).put(v);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)});
+const idbAll=s=>new Promise((res,rej)=>{const r=db.transaction(s).objectStore(s).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+
+// ══ STATE ══
+let selVid=null, selThumbURL=null, detectedAR=null;
+
+async function init(){
+  try{
+    db=await openDB();
+    // Detect Blob-in-IDB support (Safari <15.4 and some Firefox don't support it)
+    try{
+      const t=new Blob(['x'],{type:'text/plain'});
+      await idbPut('thumbs',{id:'__btest__',data:t});
+      await new Promise((res,rej)=>{const r=db.transaction('thumbs','readwrite').objectStore('thumbs').delete('__btest__');r.onsuccess=res;r.onerror=rej});
+      blobOK=true;
+    }catch(e){
+      blobOK=false;
+      $('compat-warn').classList.add('show');
+    }
+    await loadStats();
+  }catch(e){ toast('DB error: '+e.message,'err'); }
+  $('loading').classList.add('gone');
+}
+
+async function loadStats(){
+  const meta=await idbAll('meta');
+  const isSh=v=>v.aspectRatio==='short'||v.aspectRatio==='square';
+  $('vs-cnt').textContent=meta.length;
+  $('vs-sz').textContent=fmtSz(meta.reduce((a,v)=>a+(v.size||0),0));
+  $('vs-sh').textContent=meta.filter(isSh).length;
+}
+
+// ══ DROP ZONES ══
+function dzOver(e,id){e.preventDefault();$(id).classList.add('ov')}
+function dzLeave(id){$(id).classList.remove('ov')}
+function dropVid(e){e.preventDefault();$('vdrop').classList.remove('ov');const f=e.dataTransfer.files[0];if(!f)return;if(!f.type.startsWith('video/')){toast('Please drop a video file','err');return}onVidSel({files:[f]})}
+function dropThumb(e){e.preventDefault();$('tdrop').classList.remove('ov');const f=e.dataTransfer.files[0];if(!f||!f.type.startsWith('image/')){toast('Please drop an image','err');return}onThumbSel({files:[f]})}
+
+// ══ VIDEO SELECTION ══
+// Key perf win: use createObjectURL — zero RAM copy, no FileReader
+function onVidSel(input){
+  const f=input.files[0];if(!f)return;
+  selVid=f;detectedAR=null;
+  $('vdrop').classList.add('done');
+  const vn=$('vname');vn.style.display='block';vn.textContent=`${f.name}  (${fmtSz(f.size)})`;
+  if(!$('tinput').value.trim()){$('tinput').value=f.name.replace(/\.[^.]+$/,'').replace(/[_\-]+/g,' ');updatePrev()}
+
+  const burl=URL.createObjectURL(f);
+  const tmp=document.createElement('video');
+  tmp.muted=true;tmp.preload='metadata';
+
+  tmp.onloadedmetadata=()=>{
+    const w=tmp.videoWidth,h=tmp.videoHeight;
+    if(w&&h){
+      const r=w/h,badge=$('ar-badge');
+      $('ar-wrap').style.display='block';
+      if(r<0.7){detectedAR='short';badge.className='ar-badge short';$('ar-text').textContent=`9:16 portrait — will be a Short (${w}×${h})`}
+      else if(r>=0.95&&r<=1.05){detectedAR='square';badge.className='ar-badge square';$('ar-text').textContent=`1:1 square — will be a Short (${w}×${h})`}
+      else{detectedAR='wide';badge.className='ar-badge wide';$('ar-text').textContent=`${w}×${h} — standard widescreen`}
+      $('prev-thumb').style.aspectRatio=r<0.7?'9/16':r<=1.05?'1/1':'16/9';
+    }
+    const dur=tmp.duration;
+    if(dur&&isFinite(dur)){tmp.currentTime=dur*(0.1+Math.random()*0.6)}else{URL.revokeObjectURL(burl)}
+  };
+
+  tmp.onseeked=()=>{
+    if(!selThumbURL){
+      try{
+        const c=document.createElement('canvas');
+        c.width=tmp.videoWidth||640;c.height=tmp.videoHeight||360;
+        c.getContext('2d').drawImage(tmp,0,0,c.width,c.height);
+        selThumbURL=c.toDataURL('image/jpeg',0.80);
+        updatePrev();
+        $('tname').style.display='block';$('tname').textContent='Auto-captured from video';
+        $('tdrop').classList.add('done');
+      }catch(e){/* codec blocked */}
+    }
+    URL.revokeObjectURL(burl);
+  };
+  tmp.onerror=()=>URL.revokeObjectURL(burl);
+  tmp.src=burl;
+}
+
+function onThumbSel(input){
+  const f=input.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{selThumbURL=e.target.result;$('tdrop').classList.add('done');$('tname').style.display='block';$('tname').textContent=f.name;updatePrev()};
+  r.readAsDataURL(f);
+}
+
+// ══ PREVIEW ══
+function updatePrev(){
+  const t=$('tinput').value.trim(),d=$('dinput').value.trim();
+  $('prev-title').textContent=t||'Untitled Video';$('prev-title').style.color=t?'var(--text)':'var(--muted)';
+  $('prev-desc').textContent=d||'No description';$('prev-desc').style.color=d?'var(--text)':'var(--muted)';
+  $('prev-thumb').innerHTML=selThumbURL
+    ?`<img src="${selThumbURL}" style="width:100%;height:100%;object-fit:cover">`
+    :`<svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1" style="opacity:.12"><rect x="2" y="2" width="20" height="20" rx="3"/><polygon points="10,8 16,12 10,16"/></svg>`;
+  $('prev-ar').textContent=detectedAR==='short'?'9:16 Short':detectedAR==='square'?'1:1 Short':detectedAR==='wide'?'16:9 Standard':'';
+}
+
+// ══ PUBLISH — blob-native, zero memory copy ══
+async function publish(){
+  const title=$('tinput').value.trim();
+  if(!selVid){toast('Please select a video file','err');return}
+  if(!title){toast('Please enter a title','err');return}
+
+  const btn=$('pub-btn');btn.disabled=true;btn.textContent='Publishing…';
+  $('prog-wrap').classList.add('vis');
+
+  const id='vid_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+
+  try{
+    if(blobOK){
+      // ══ FAST PATH ══
+      // Store the File (a Blob subclass) directly — IDB serialises it from disk
+      // without ever loading it into the JS heap. Zero freeze, zero double-copy.
+      setProgress(15,'Saving video to vault…','Streaming directly from disk — no memory copy','saving');
+      await idbPut('blobs',{id,data:selVid});
+      setProgress(85,'Saving metadata…','','saving');
+    } else {
+      // ══ FALLBACK (old browsers) ══
+      setProgress(0,'Reading file…','Large files may take a moment','reading');
+      const buf=await readWithProgress(selVid);
+      setProgress(88,'Saving to vault…','','saving');
+      await idbPut('blobs',{id,data:buf});
+    }
+
+    // Thumbnail stored in its own store — keeps meta reads fast
+    if(selThumbURL){
+      await idbPut('thumbs',{id,data:selThumbURL});
+    }
+
+    const meta={
+      id,title,
+      desc:        $('dinput').value.trim(),
+      hasThumb:    !!selThumbURL,   // player fetches from thumbs store lazily
+      size:        selVid.size,
+      type:        selVid.type||'video/mp4',
+      aspectRatio: detectedAR||'wide',
+      added:       Date.now(),
+    };
+    await idbPut('meta',meta);
+
+    setProgress(100,'Done!','','saving');
+    toast('Published to vault!','ok');
+    resetForm();
+    await loadStats();
+
+  }catch(e){
+    toast('Publish failed: '+e.message,'err');
+    console.error(e);
+  }finally{
+    btn.disabled=false;btn.textContent='Publish to Vault';
+    setTimeout(()=>{$('prog-wrap').classList.remove('vis');setProgress(0,'','','reading')},1400);
+  }
+}
+
+function readWithProgress(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onprogress=e=>{if(e.lengthComputable){const p=Math.round(e.loaded/e.total*85);setProgress(p,`Reading… ${p}%`,'Loading file into memory','reading')}};
+    r.onload=e=>res(e.target.result);
+    r.onerror=()=>rej(r.error);
+    r.readAsArrayBuffer(file);
+  });
+}
+
+function setProgress(pct,lbl,sub,mode){
+  $('prog-fill').style.width=pct+'%';
+  $('prog-fill').className='prog-fill'+(mode==='saving'?' saving':'');
+  $('prog-lbl').textContent=lbl;
+  $('prog-sub').textContent=sub||'';
+}
+
+function resetForm(){
+  selVid=null;selThumbURL=null;detectedAR=null;
+  $('vinput').value='';$('tinput2').value='';$('tinput').value='';$('dinput').value='';
+  ['vdrop','tdrop'].forEach(id=>$(id).classList.remove('done'));
+  [$('vname'),$('tname')].forEach(el=>{el.style.display='none';el.textContent=''});
+  $('ar-wrap').style.display='none';
+  $('prev-thumb').style.aspectRatio='16/9';
+  updatePrev();
+}
+
+// ══ UTILS ══
+function fmtSz(b){return b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':b<1073741824?(b/1048576).toFixed(1)+' MB':(b/1073741824).toFixed(2)+' GB'}
+let tT;function toast(msg,type='ok'){const el=$('toast');el.textContent=msg;el.className='show '+type;clearTimeout(tT);tT=setTimeout(()=>el.className='',3500)}
+
+init();
+</script>
+</body>
+</html>
